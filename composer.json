@@ -1,0 +1,25 @@
+{
+    "name": "enlivenapp/flight-factory",
+    "description": "Interactive scaffolding tool for FlightPHP applications and plugins",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "enlivenapp",
+            "email": "mw@enlivenapp.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "flightphp/runway": "^1.1",
+        "nette/php-generator": "^4.0"
+    },
+    "suggest": {
+        "enlivenapp/flight-school": "Plugin loader for FlightPHP — enables plugin discovery and auto-loading"
+    },
+    "autoload": {
+        "psr-4": {
+            "Enlivenapp\\FlightFactory\\": "src/"
+        }
+    }
+}
