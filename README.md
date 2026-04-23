@@ -1,3 +1,9 @@
+[![Version](http://poser.pugx.org/enlivenapp/flight-factory/version)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![License](http://poser.pugx.org/enlivenapp/flight-factory/license)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![Suggesters](http://poser.pugx.org/enlivenapp/flight-factory/suggesters)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![PHP Version Require](http://poser.pugx.org/enlivenapp/flight-factory/require/php)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![Monthly Downloads](https://poser.pugx.org/enlivenapp/flight-factory/d/monthly)](https://packagist.org/packages/enlivenapp/flight-factory)
+
 # Flight Factory
 
 Interactive scaffolding tool for FlightPHP applications and plugins.
