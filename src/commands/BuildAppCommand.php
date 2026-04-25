@@ -13,9 +13,11 @@ namespace Enlivenapp\FlightFactory\Commands;
 use Enlivenapp\FlightFactory\Builders\CommandBuilder;
 use Enlivenapp\FlightFactory\Builders\ConfigBuilder;
 use Enlivenapp\FlightFactory\Builders\ControllerBuilder;
+use Enlivenapp\FlightFactory\Builders\EntityBuilder;
 use Enlivenapp\FlightFactory\Builders\MiddlewareBuilder;
 use Enlivenapp\FlightFactory\Builders\MigrationBuilder;
 use Enlivenapp\FlightFactory\Builders\ModelBuilder;
+use Enlivenapp\FlightFactory\Builders\RepositoryBuilder;
 use Enlivenapp\FlightFactory\Builders\SeedBuilder;
 use Enlivenapp\FlightFactory\Builders\ServiceBuilder;
 use Enlivenapp\FlightFactory\Builders\UtilBuilder;
@@ -30,10 +32,12 @@ class BuildAppCommand extends AbstractBaseCommand
         'command' => 'Command',
         'config' => 'Configuration file',
         'controller' => 'Controller',
+        'entity' => 'ActiveRecord entity',
         'middleware' => 'Middleware',
         'migration' => 'Database migration',
-        'model' => 'Model',
+        'model' => 'ActiveRecord model',
         'mvc' => 'Controller + Model + View',
+        'repository' => 'Repository',
         'seed' => 'Database seeder',
         'service' => 'Service',
         'util' => 'Utility class',
@@ -54,10 +58,12 @@ class BuildAppCommand extends AbstractBaseCommand
             '<comment>  command            CLI command (app/commands/)</end><eol/>' .
             '<comment>  config             Configuration file (app/config/)</end><eol/>' .
             '<comment>  controller         Web or API controller (app/controllers/)</end><eol/>' .
+            '<comment>  entity             ActiveRecord entity (app/entities/)</end><eol/>' .
             '<comment>  middleware          Middleware class (app/middlewares/)</end><eol/>' .
             '<comment>  migration          Database migration (app/migrations/)</end><eol/>' .
-            '<comment>  model              Model class (app/models/)</end><eol/>' .
+            '<comment>  model              ActiveRecord model (app/models/)</end><eol/>' .
             '<comment>  mvc                Controller + Model + View combo</end><eol/>' .
+            '<comment>  repository         Repository class (app/repositories/)</end><eol/>' .
             '<comment>  seed               Database seeder (app/seeds/)</end><eol/>' .
             '<comment>  service            Service class (app/services/)</end><eol/>' .
             '<comment>  util               Utility class (app/utils/)</end><eol/>' .
@@ -147,6 +153,16 @@ class BuildAppCommand extends AbstractBaseCommand
                 $result = (new ControllerBuilder())->build($name, 'app\\controllers', $targetDir, $type);
                 break;
 
+            case 'entity':
+                $targetDir = $projectRoot . 'entities/';
+                $check = ComponentExists::check($name, '', $targetDir);
+                if ($check['exists']) {
+                    $io->error("{$name} already exists at {$check['path']}", true);
+                    return;
+                }
+                $result = (new EntityBuilder())->build($name, 'app\\entities', $targetDir);
+                break;
+
             case 'middleware':
                 $targetDir = $projectRoot . 'middlewares/';
                 $check = ComponentExists::check($name, 'Middleware', $targetDir);
@@ -170,6 +186,16 @@ class BuildAppCommand extends AbstractBaseCommand
             case 'mvc':
                 $this->buildMvc($io, $name, $projectRoot);
                 return;
+
+            case 'repository':
+                $targetDir = $projectRoot . 'repositories/';
+                $check = ComponentExists::check($name, 'Repository', $targetDir);
+                if ($check['exists']) {
+                    $io->error("{$check['name']} already exists at {$check['path']}", true);
+                    return;
+                }
+                $result = (new RepositoryBuilder())->build($name, 'app\\repositories', $targetDir, 'app\\entities');
+                break;
 
             case 'seed':
                 $targetDir = $projectRoot . 'seeds/';

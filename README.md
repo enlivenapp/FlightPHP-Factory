@@ -30,10 +30,12 @@ Commands are automatically available via `php runway build`.
 | `command` | CLI command |
 | `config` | Configuration file |
 | `controller` | Web or API controller |
+| `entity` | ActiveRecord entity (src/Entities/) |
 | `middleware` | Middleware class |
-| `migration` | Database migration |
-| `model` | Model class |
+| `migration` | Database migration (PHP class) |
+| `model` | ActiveRecord model (src/Models/) |
 | `mvc` | Controller + Model + View combo |
+| `repository` | Repository class (src/Repositories/) |
 | `seed` | Database seeder |
 | `service` | Service class |
 | `util` | Utility class |
@@ -64,7 +66,7 @@ php runway build:vendor enlivenapp/my-plugin mvc Blog --type=api
 
 ### Creating a New Vendor Package
 
-If the package doesn't exist, `build:vendor` will scaffold it for you:
+If the package doesn't exist, `build:vendor` will scaffold it for you. Flight School plugins get full boilerplate: `Plugin.php` (with slot registration examples), `Config/Config.php`, `Config/Routes.php`, and `Config/AdminRoutes.php`.
 
 ```bash
 php runway build:vendor enlivenapp/my-new-plugin
@@ -94,9 +96,11 @@ Files are placed in the `app/` directory with lowercase directory names (use wit
 app/commands/
 app/config/
 app/controllers/
+app/entities/
 app/middlewares/
 app/migrations/
 app/models/
+app/repositories/
 app/seeds/
 app/services/
 app/utils/
@@ -109,11 +113,13 @@ Files are placed in the package's `src/` directory with uppercase directory name
 
 ```
 src/commands/
-src/Config/
+src/Config/           (Config.php, Routes.php, AdminRoutes.php)
 src/Controllers/
+src/Database/Migrations/
+src/Entities/
 src/Middlewares/
-src/Migrations/
 src/Models/
+src/Repositories/
 src/Seeds/
 src/Services/
 src/Utils/

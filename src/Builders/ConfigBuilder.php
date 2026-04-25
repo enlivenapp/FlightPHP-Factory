@@ -39,10 +39,15 @@ class ConfigBuilder
              * Plugin configuration.
              *
              * $configPrepend — the key your config is stored under on $app.
-             * $routePrepend  — the URL prefix for all your routes.
+             *                  Default: vendor.package-name (derived from composer name)
+             * $routePrepend  — the URL prefix for all public routes in Routes.php.
+             *                  AdminRoutes.php is always prefixed with /admin.
              *
-             * return []; Returns your config values as an array.
+             * Uncomment to override the defaults:
              */
+
+            // $configPrepend = 'vendor.package-name';
+            // $routePrepend = 'package-name';
 
             return [
             ];

@@ -15,7 +15,7 @@ use Nette\PhpGenerator\PhpFile;
 use Nette\PhpGenerator\PhpNamespace;
 use Nette\PhpGenerator\PsrPrinter;
 
-class ModelBuilder
+class EntityBuilder
 {
     /**
      * @return array{success: bool, message: string}

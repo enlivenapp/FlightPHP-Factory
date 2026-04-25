@@ -13,9 +13,11 @@ namespace Enlivenapp\FlightFactory\Commands;
 use Enlivenapp\FlightFactory\Builders\CommandBuilder;
 use Enlivenapp\FlightFactory\Builders\ConfigBuilder;
 use Enlivenapp\FlightFactory\Builders\ControllerBuilder;
+use Enlivenapp\FlightFactory\Builders\EntityBuilder;
 use Enlivenapp\FlightFactory\Builders\MiddlewareBuilder;
 use Enlivenapp\FlightFactory\Builders\MigrationBuilder;
 use Enlivenapp\FlightFactory\Builders\ModelBuilder;
+use Enlivenapp\FlightFactory\Builders\RepositoryBuilder;
 use Enlivenapp\FlightFactory\Builders\SeedBuilder;
 use Enlivenapp\FlightFactory\Builders\ServiceBuilder;
 use Enlivenapp\FlightFactory\Builders\UtilBuilder;
@@ -30,10 +32,12 @@ class BuildVendorCommand extends AbstractBaseCommand
         'command' => 'Command',
         'config' => 'Configuration file',
         'controller' => 'Controller',
+        'entity' => 'ActiveRecord entity',
         'middleware' => 'Middleware',
         'migration' => 'Database migration',
-        'model' => 'Model',
+        'model' => 'ActiveRecord model',
         'mvc' => 'Controller + Model + View',
+        'repository' => 'Repository',
         'seed' => 'Database seeder',
         'service' => 'Service',
         'util' => 'Utility class',
@@ -55,10 +59,12 @@ class BuildVendorCommand extends AbstractBaseCommand
             '<comment>  command            CLI command (src/commands/)</end><eol/>' .
             '<comment>  config             Configuration file (src/Config/)</end><eol/>' .
             '<comment>  controller         Web or API controller (src/Controllers/)</end><eol/>' .
+            '<comment>  entity             ActiveRecord entity (src/Entities/)</end><eol/>' .
             '<comment>  middleware          Middleware class (src/Middlewares/)</end><eol/>' .
-            '<comment>  migration          Database migration (src/Migrations/)</end><eol/>' .
-            '<comment>  model              Model class (src/Models/)</end><eol/>' .
+            '<comment>  migration          Database migration (src/Database/Migrations/)</end><eol/>' .
+            '<comment>  model              ActiveRecord model (src/Models/)</end><eol/>' .
             '<comment>  mvc                Controller + Model + View combo</end><eol/>' .
+            '<comment>  repository         Repository class (src/Repositories/)</end><eol/>' .
             '<comment>  seed               Database seeder (src/Seeds/)</end><eol/>' .
             '<comment>  service            Service class (src/Services/)</end><eol/>' .
             '<comment>  util               Utility class (src/Utils/)</end><eol/>' .
@@ -242,11 +248,88 @@ class BuildVendorCommand extends AbstractBaseCommand
             {
                 public function register(Engine \$app, Router \$router, array \$config = []): void
                 {
+                    // Register menu items:
+                    // \$app->slot('menu.content', '{$name}', [
+                    //     'label'    => '{$name}',
+                    //     'url'      => '/admin/{$name}',
+                    //     'icon'     => 'ti-point',
+                    //     'priority' => 50,
+                    // ]);
+
+                    // Register a tab on another page:
+                    // \$app->slot('users.edit.tabs', '{$name}', [
+                    //     'label'    => '{$name}',
+                    //     'priority' => 50,
+                    //     'callable' => function (array \$context) use (\$app) {
+                    //         return [
+                    //             'fields'     => [
+                    //                 'field_name' => ['value' => '', 'type' => 'string', 'title' => 'Field Label'],
+                    //             ],
+                    //             'post_url'   => '/admin/{$name}/' . \$context['user_id'] . '/update',
+                    //             'return_url' => \$context['return_url'] ?? '',
+                    //         ];
+                    //     },
+                    // ]);
                 }
             }
             PHP;
 
             file_put_contents($packagePath . '/src/Plugin.php', $pluginContent . "\n");
+
+            // Create Config directory with boilerplate files
+            $configDir = $packagePath . '/src/Config';
+            mkdir($configDir, 0755, true);
+
+            $configContent = <<<PHP
+            <?php
+
+            /**
+             * @package   {$namespace}
+             * @license   MIT
+             */
+
+            // \$configPrepend = '{$vendor}.{$name}';
+            // \$routePrepend = '{$name}';
+
+            return [];
+            PHP;
+
+            file_put_contents($configDir . '/Config.php', $configContent . "\n");
+
+            $routesContent = <<<PHP
+            <?php
+
+            /**
+             * Public routes.
+             *
+             * Auto-prefixed by Flight School using \$routePrepend from Config.php.
+             */
+
+            /** @var \\flight\\net\\Router \$router */
+            /** @var \\flight\\Engine \$app */
+            /** @var string \$configPrepend */
+            PHP;
+
+            file_put_contents($configDir . '/Routes.php', $routesContent . "\n");
+
+            $adminRoutesContent = <<<PHP
+            <?php
+
+            /**
+             * Admin routes.
+             *
+             * Auto-prefixed with /admin by Flight School.
+             */
+
+            // use Enlivenapp\\FlightCsrf\\Middlewares\\CsrfMiddleware;
+            // use Enlivenapp\\FlightShield\\Middlewares\\SessionAuthMiddleware;
+
+            /** @var \\flight\\net\\Router \$router */
+            /** @var \\flight\\Engine \$app */
+            /** @var string \$configPrepend */
+            PHP;
+
+            file_put_contents($configDir . '/AdminRoutes.php', $adminRoutesContent . "\n");
         }
 
         $io->ok("{$vendor}/{$name} has been created at {$packagePath}", true);
@@ -289,6 +372,16 @@ class BuildVendorCommand extends AbstractBaseCommand
                 $result = (new ControllerBuilder())->build($name, $namespace . '\\Controllers', $targetDir, $type);
                 break;
 
+            case 'entity':
+                $targetDir = $packagePath . '/src/Entities/';
+                $check = ComponentExists::check($name, '', $targetDir);
+                if ($check['exists']) {
+                    $io->error("{$name} already exists at {$check['path']}", true);
+                    return;
+                }
+                $result = (new EntityBuilder())->build($name, $namespace . '\\Entities', $targetDir);
+                break;
+
             case 'middleware':
                 $targetDir = $packagePath . '/src/Middlewares/';
                 $check = ComponentExists::check($name, 'Middleware', $targetDir);
@@ -300,8 +393,8 @@ class BuildVendorCommand extends AbstractBaseCommand
                 break;
 
             case 'migration':
-                $targetDir = $packagePath . '/src/Migrations/';
-                $result = (new MigrationBuilder())->build($name, $targetDir);
+                $targetDir = $packagePath . '/src/Database/Migrations/';
+                $result = (new MigrationBuilder())->build($name, $targetDir, $namespace . '\\Database\\Migrations');
                 break;
 
             case 'model':
@@ -312,6 +405,16 @@ class BuildVendorCommand extends AbstractBaseCommand
             case 'mvc':
                 $this->buildMvc($io, $name, $vendor, $pkgName, $packagePath);
                 return;
+
+            case 'repository':
+                $targetDir = $packagePath . '/src/Repositories/';
+                $check = ComponentExists::check($name, 'Repository', $targetDir);
+                if ($check['exists']) {
+                    $io->error("{$check['name']} already exists at {$check['path']}", true);
+                    return;
+                }
+                $result = (new RepositoryBuilder())->build($name, $namespace . '\\Repositories', $targetDir, $namespace . '\\Entities');
+                break;
 
             case 'seed':
                 $targetDir = $packagePath . '/src/Seeds/';
