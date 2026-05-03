@@ -38,18 +38,17 @@ class ConfigBuilder
             /**
              * Plugin configuration.
              *
-             * $configPrepend — the key your config is stored under on $app.
-             *                  Default: vendor.package-name (derived from composer name)
-             * $routePrepend  — the URL prefix for all public routes in Routes.php.
-             *                  AdminRoutes.php is always prefixed with /admin.
+             * configPrepend — the key your config is stored under on $app.
+             *                 Default: vendor.package-name (derived from composer name)
+             * routePrepend  — the URL prefix for all public routes in Routes.php.
+             *                 AdminRoutes.php is always prefixed with /admin.
              *
-             * Uncomment to override the defaults:
+             * Add these keys to the returned array to override the defaults:
              */
 
-            // $configPrepend = 'vendor.package-name';
-            // $routePrepend = 'package-name';
-
             return [
+                // 'configPrepend' => 'vendor.package-name',
+                // 'routePrepend' => 'package-name',
             ];
             PHP;
         } else {

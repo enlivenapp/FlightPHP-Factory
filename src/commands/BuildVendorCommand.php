@@ -13,11 +13,9 @@ namespace Enlivenapp\FlightFactory\Commands;
 use Enlivenapp\FlightFactory\Builders\CommandBuilder;
 use Enlivenapp\FlightFactory\Builders\ConfigBuilder;
 use Enlivenapp\FlightFactory\Builders\ControllerBuilder;
-use Enlivenapp\FlightFactory\Builders\EntityBuilder;
 use Enlivenapp\FlightFactory\Builders\MiddlewareBuilder;
 use Enlivenapp\FlightFactory\Builders\MigrationBuilder;
 use Enlivenapp\FlightFactory\Builders\ModelBuilder;
-use Enlivenapp\FlightFactory\Builders\RepositoryBuilder;
 use Enlivenapp\FlightFactory\Builders\SeedBuilder;
 use Enlivenapp\FlightFactory\Builders\ServiceBuilder;
 use Enlivenapp\FlightFactory\Builders\UtilBuilder;
@@ -32,12 +30,10 @@ class BuildVendorCommand extends AbstractBaseCommand
         'command' => 'Command',
         'config' => 'Configuration file',
         'controller' => 'Controller',
-        'entity' => 'ActiveRecord entity',
         'middleware' => 'Middleware',
         'migration' => 'Database migration',
         'model' => 'ActiveRecord model',
         'mvc' => 'Controller + Model + View',
-        'repository' => 'Repository',
         'seed' => 'Database seeder',
         'service' => 'Service',
         'util' => 'Utility class',
@@ -59,12 +55,10 @@ class BuildVendorCommand extends AbstractBaseCommand
             '<comment>  command            CLI command (src/commands/)</end><eol/>' .
             '<comment>  config             Configuration file (src/Config/)</end><eol/>' .
             '<comment>  controller         Web or API controller (src/Controllers/)</end><eol/>' .
-            '<comment>  entity             ActiveRecord entity (src/Entities/)</end><eol/>' .
             '<comment>  middleware          Middleware class (src/Middlewares/)</end><eol/>' .
             '<comment>  migration          Database migration (src/Database/Migrations/)</end><eol/>' .
             '<comment>  model              ActiveRecord model (src/Models/)</end><eol/>' .
             '<comment>  mvc                Controller + Model + View combo</end><eol/>' .
-            '<comment>  repository         Repository class (src/Repositories/)</end><eol/>' .
             '<comment>  seed               Database seeder (src/Seeds/)</end><eol/>' .
             '<comment>  service            Service class (src/Services/)</end><eol/>' .
             '<comment>  util               Utility class (src/Utils/)</end><eol/>' .
@@ -152,6 +146,9 @@ class BuildVendorCommand extends AbstractBaseCommand
     }
 
     /**
+     * Prompt the user to select an existing package or create a new one.
+     *
+     * @param object $io CLI I/O helper
      * @return array{?string, bool} [package name, is new]
      */
     protected function resolvePackage($io): array
@@ -192,6 +189,15 @@ class BuildVendorCommand extends AbstractBaseCommand
         return [$package ?: null, true];
     }
 
+    /**
+     * Create the directory structure and boilerplate files for a new package.
+     *
+     * @param object $io          CLI I/O helper
+     * @param string $vendor      Vendor name
+     * @param string $name        Package name
+     * @param string $packagePath Absolute path for the new package
+     * @return void
+     */
     protected function scaffoldPackage($io, string $vendor, string $name, string $packagePath): void
     {
         $namespace = $this->buildNamespace($vendor, $name);
@@ -288,10 +294,10 @@ class BuildVendorCommand extends AbstractBaseCommand
              * @license   MIT
              */
 
-            // \$configPrepend = '{$vendor}.{$name}';
-            // \$routePrepend = '{$name}';
-
-            return [];
+            return [
+                // 'configPrepend' => '{$vendor}.{$name}',
+                // 'routePrepend' => '{$name}',
+            ];
             PHP;
 
             file_put_contents($configDir . '/Config.php', $configContent . "\n");
@@ -302,7 +308,7 @@ class BuildVendorCommand extends AbstractBaseCommand
             /**
              * Public routes.
              *
-             * Auto-prefixed by Flight School using \$routePrepend from Config.php.
+             * Auto-prefixed by Flight School using the routePrepend value from Config.php.
              */
 
             /** @var \\flight\\net\\Router \$router */
@@ -335,6 +341,17 @@ class BuildVendorCommand extends AbstractBaseCommand
         $io->ok("{$vendor}/{$name} has been created at {$packagePath}", true);
     }
 
+    /**
+     * Build a single component inside a vendor package and report the result.
+     *
+     * @param object $io          CLI I/O helper
+     * @param string $component   Component type key (e.g. 'controller', 'model')
+     * @param string $name        Name for the new component
+     * @param string $vendor      Vendor name
+     * @param string $pkgName     Package name
+     * @param string $packagePath Absolute path to the package directory
+     * @return void
+     */
     protected function buildComponent($io, string $component, string $name, string $vendor, string $pkgName, string $packagePath): void
     {
         $namespace = $this->buildNamespace($vendor, $pkgName);
@@ -372,16 +389,6 @@ class BuildVendorCommand extends AbstractBaseCommand
                 $result = (new ControllerBuilder())->build($name, $namespace . '\\Controllers', $targetDir, $type);
                 break;
 
-            case 'entity':
-                $targetDir = $packagePath . '/src/Entities/';
-                $check = ComponentExists::check($name, '', $targetDir);
-                if ($check['exists']) {
-                    $io->error("{$name} already exists at {$check['path']}", true);
-                    return;
-                }
-                $result = (new EntityBuilder())->build($name, $namespace . '\\Entities', $targetDir);
-                break;
-
             case 'middleware':
                 $targetDir = $packagePath . '/src/Middlewares/';
                 $check = ComponentExists::check($name, 'Middleware', $targetDir);
@@ -405,16 +412,6 @@ class BuildVendorCommand extends AbstractBaseCommand
             case 'mvc':
                 $this->buildMvc($io, $name, $vendor, $pkgName, $packagePath);
                 return;
-
-            case 'repository':
-                $targetDir = $packagePath . '/src/Repositories/';
-                $check = ComponentExists::check($name, 'Repository', $targetDir);
-                if ($check['exists']) {
-                    $io->error("{$check['name']} already exists at {$check['path']}", true);
-                    return;
-                }
-                $result = (new RepositoryBuilder())->build($name, $namespace . '\\Repositories', $targetDir, $namespace . '\\Entities');
-                break;
 
             case 'seed':
                 $targetDir = $packagePath . '/src/Seeds/';
@@ -444,6 +441,16 @@ class BuildVendorCommand extends AbstractBaseCommand
         }
     }
 
+    /**
+     * Build a controller + model + view combo inside a vendor package.
+     *
+     * @param object $io          CLI I/O helper
+     * @param string $name        Base name for the MVC set
+     * @param string $vendor      Vendor name
+     * @param string $pkgName     Package name
+     * @param string $packagePath Absolute path to the package directory
+     * @return void
+     */
     protected function buildMvc($io, string $name, string $vendor, string $pkgName, string $packagePath): void
     {
         $namespace = $this->buildNamespace($vendor, $pkgName);

@@ -1,10 +1,16 @@
-[![Version](http://poser.pugx.org/enlivenapp/flight-factory/version)](https://packagist.org/packages/enlivenapp/flight-factory)
-[![License](http://poser.pugx.org/enlivenapp/flight-factory/license)](https://packagist.org/packages/enlivenapp/flight-factory)
-[![Suggesters](http://poser.pugx.org/enlivenapp/flight-factory/suggesters)](https://packagist.org/packages/enlivenapp/flight-factory)
-[![PHP Version Require](http://poser.pugx.org/enlivenapp/flight-factory/require/php)](https://packagist.org/packages/enlivenapp/flight-factory)
-[![Monthly Downloads](https://poser.pugx.org/enlivenapp/flight-factory/d/monthly)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![Stable? Not Quite Yet](https://img.shields.io/badge/stable%3F-not%20quite%20yet-blue?style=for-the-badge)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![License](https://img.shields.io/packagist/l/enlivenapp/flight-factory?style=for-the-badge)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![PHP Version](https://img.shields.io/packagist/php-v/enlivenapp/flight-factory?style=for-the-badge)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/enlivenapp/flight-factory?style=for-the-badge)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![Total Downloads](https://img.shields.io/packagist/dt/enlivenapp/flight-factory?style=for-the-badge)](https://packagist.org/packages/enlivenapp/flight-factory)
+[![GitHub Issues](https://img.shields.io/github/issues/enlivenapp/FlightPHP-Factory?style=for-the-badge)](https://github.com/enlivenapp/FlightPHP-Factory/issues)
+[![Contributors](https://img.shields.io/github/contributors/enlivenapp/FlightPHP-Factory?style=for-the-badge)](https://github.com/enlivenapp/FlightPHP-Factory/graphs/contributors)
+[![Latest Release](https://img.shields.io/github/v/release/enlivenapp/FlightPHP-Factory?style=for-the-badge)](https://github.com/enlivenapp/FlightPHP-Factory/releases)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-blue?style=for-the-badge)](https://github.com/enlivenapp/FlightPHP-Factory/pulls)
 
 # Flight Factory
+
+**I noticed folks downloading some of these packages. I'm super grateful, Thank You!  I would like to let folks know until this notice disappears I'm doing a lot of breaking changes without worrying about them.  Once versions are up around 0.5.x things should settle down.**
 
 Interactive scaffolding tool for FlightPHP applications and plugins.
 
@@ -66,7 +72,7 @@ php runway build:vendor enlivenapp/my-plugin mvc Blog --type=api
 
 ### Creating a New Vendor Package
 
-If the package doesn't exist, `build:vendor` will scaffold it for you. Flight School plugins get full boilerplate: `Plugin.php` (with slot registration examples), `Config/Config.php`, `Config/Routes.php`, and `Config/AdminRoutes.php`.
+If the package doesn't exist, `build:vendor` will scaffold it for you. Flight School plugins get full boilerplate: `Plugin.php`, `Config/Config.php`, `Config/Routes.php`, and `Config/AdminRoutes.php`.
 
 ```bash
 php runway build:vendor enlivenapp/my-new-plugin
